@@ -64,13 +64,24 @@ def separar_aeroportos(path: str):
             saida.write(f"{_id},{','.join(line)}\n")
 
 
+def get_aeronaves(path='./BrFlights2/aeronaves.csv') -> dict[int, list[str]]:
+    with open(path, encoding='latin-1') as f:
+        next(f)
+        return {int(_id): rest_of_line for _id, *rest_of_line in map(lambda l: l.strip().split(','), f)}
+                
+
+def separar_tabelas(dataset_path: str):
+    separar_aeronaves(dataset_path)
+    separar_aeroportos(dataset_path)
+
+
 def main():
     DATASET_PATH = './BrFlights2/BrFlights2.csv'
     DATASET_ENCODING = 'latin-1'
     MAX_ROWS = None
     
-    separar_aeronaves(DATASET_PATH)
-    separar_aeroportos(DATASET_PATH)
+    print(get_aeronaves())    
+    
     
     
     
