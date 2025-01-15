@@ -83,7 +83,7 @@ def separar_voos(path: str):
             line_list = line.strip().split(',')
             id_aeronave = str(aeronaves[line_list[ColunasDataset.VOOS]])
             partida_prev = line_list[ColunasDataset.PARTIDA_PREVISTA]
-            if (partida_prev := line_list[ColunasDataset.PARTIDA_REAL].strip('Z') == 'NA'): 
+            if (partida_prev := line_list[ColunasDataset.PARTIDA_REAL].strip('Z')) == 'NA': 
                 partida_prev = ''
             
             id_origem = str(aeroportos[float(line_list[ColunasDataset.LAT_ORIG]),
