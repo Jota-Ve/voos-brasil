@@ -1,7 +1,7 @@
 import numpy as np
-import os
-import time
 from pyspark.sql import SparkSession
+
+from colunas_dataset import ColunasDataset
 
 
 def spark_shit():
@@ -19,7 +19,8 @@ def spark_shit():
 
     print(dir(spark))
 
-    df = spark.createDataFrame([(1, 'a'), (2, 'b')])
+    df = spark.createDataFrame([(1, 'a'),
+    (2, 'b')])
     print(df.head())
 
 
@@ -50,7 +51,6 @@ def separar_aeronaves(path: str):
 
 def separar_aeroportos(path: str):
     linhas_saida: set[tuple[str, ...]] = set()
-    cabecalho = ''
     with open(path, encoding='latin1') as entrada, open('BrFlights2/aeroportos.csv', 'w', encoding='latin-1') as saida:
         next(entrada) # pula cabeçalho
         for line in entrada:
@@ -63,7 +63,53 @@ def separar_aeroportos(path: str):
         for _id, line in enumerate(sorted(linhas_saida), start=1):
             saida.write(f"{_id},{','.join(line)}\n")
 
-
+    
+    
+def separar_voos(path: str):
+    aeronaves = map_aeronave_to_id()
+    aeroportos = map_aeroporto_to_id()
+    
+    with open(path, encoding='latin1') as entrada, open('BrFlights2/voos.csv', 'w', encoding='latin-1') as saida:
+        next(entrada) # pula cabeçalho
+        
+        saida.write('idAeronave,partidaPrevista,idOrigem,idDestino,tipoLinha,'
+                    'partidaReal,chegadaPrevista,chegadaReal,situacao,justificativa\n')
+        linhas_saida = set()
+        i = 0
+        for i, line in enumerate(entrada):
+            if i%200_000 == 0:
+                print(f"Lendo linha {i:_}...")
+                
+            line_list = line.strip().split(',')
+            id_aeronave = str(aeronaves[line_list[ColunasDataset.VOOS]])
+            partida_prev = line_list[ColunasDataset.PARTIDA_PREVISTA]
+            if partida_prev == 'NA': partida_prev = ''
+            
+            id_origem = str(aeroportos[float(line_list[ColunasDataset.LAT_ORIG]),
+                                   float(line_list[ColunasDataset.LONG_ORIG])])
+            
+            id_destino = str(aeroportos[float(line_list[ColunasDataset.LAT_DEST]),
+                                    float(line_list[ColunasDataset.LONG_DEST])])
+            
+            tipo_linha = line_list[ColunasDataset.CODIGO_TIPO_LINHA]
+            
+            if (partida_real := line_list[ColunasDataset.PARTIDA_REAL].strip('Z')) == 'NA':
+                partida_real = ''
+            if (chegada_prev := line_list[ColunasDataset.CHEGADA_PREVISTA].strip('Z')) == 'NA':
+                chegada_prev = ''
+            if (chegada_real := line_list[ColunasDataset.CHEGADA_REAL].strip('Z')) == 'NA':
+                chegada_real = ''
+                
+            situacao = line_list[ColunasDataset.SITUACAO_VOO]
+            justificativa = line_list[ColunasDataset.CODIGO_JUSTIFICATIVA]
+            
+            linhas_saida.add(','.join([id_aeronave, partida_prev, id_origem, id_destino, tipo_linha, 
+                                  partida_real, chegada_prev, chegada_real, situacao, justificativa]) + '\n')
+        
+        print(f"Remove {i-len(linhas_saida):_} linhas duplicadas, sobrando {len(linhas_saida):_} linhas.")
+        saida.writelines(linhas_saida)
+        
+            
 def map_aeronave_to_id(path='./BrFlights2/aeronaves.csv') -> dict[str, int]:
     with open(path, encoding='latin-1') as f:
         next(f)
@@ -79,14 +125,15 @@ def map_aeroporto_to_id(path='./BrFlights2/aeroportos.csv') -> dict[tuple[float,
 def separar_tabelas(dataset_path: str):
     separar_aeronaves(dataset_path)
     separar_aeroportos(dataset_path)
+    separar_voos(dataset_path)
+
 
 
 def main():
     DATASET_PATH = './BrFlights2/BrFlights2.csv'
     DATASET_ENCODING = 'latin-1'
-    MAX_ROWS = None
-    
-    print(map_aeroporto_to_id())    
+
+    separar_tabelas(DATASET_PATH)
     
     
     
