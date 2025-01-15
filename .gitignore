@@ -197,3 +197,4 @@ pyrightconfig.json
 ### Datasets
 BrFlights2/*.csv
 *.pbix
+*-bkp.sql
