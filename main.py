@@ -38,14 +38,14 @@ def read_csv(path: str, encoding: str, max_rows: int|None = None):
 def separar_aeronaves(path: str):
     linhas_to_write = set()
     with open(path, encoding='latin1') as entrada, open('BrFlights2/aeronaves.csv', 'w', encoding='latin-1') as saida:
-        cabecalho = next(saida)
+        cabecalho = next(entrada).split(',', maxsplit=2)[:2]
         for line in entrada:
             aeronave, companhia = line.split(',', maxsplit=2)[:2]
-            linhas_to_write.add(f'{aeronave},{companhia}\n')
+            linhas_to_write.add(f'{aeronave},{companhia}')
         
-        saida.write(cabecalho)
-        for line in sorted(linhas_to_write):
-            saida.write(line)
+        saida.write(f"id,{','.join(cabecalho)}\n")
+        for _id, line in enumerate(sorted(linhas_to_write), start=1):
+            saida.write(f"{_id},{line}\n")
             
 
 def separar_aeroportos(path: str):
@@ -59,10 +59,9 @@ def separar_aeroportos(path: str):
             linhas_saida.add((pais_orig, estado_orig, cidade_orig, aero_orig, lat_orig, long_orig))
             linhas_saida.add((pais_dest, estado_dest, cidade_dest, aero_dest, lat_dest, long_dest))
        
-        saida.write('pais,estado,cidade,aeroporto,latitude,longitue\n')
-        for line in sorted(linhas_saida):
-            saida.write(','.join(line) + '\n')
-            
+        saida.write('id,pais,estado,cidade,aeroporto,latitude,longitue\n')
+        for _id, line in enumerate(sorted(linhas_saida), start=1):
+            saida.write(f"{_id},{','.join(line)}\n")
 
 
 def main():
