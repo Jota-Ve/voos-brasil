@@ -36,10 +36,16 @@ def read_csv(path: str, encoding: str, max_rows: int|None = None):
 
 
 def separar_aeronaves(path: str):
+    linhas_to_write = set()
     with open(path, encoding='latin1') as entrada, open('BrFlights2/aeronaves.csv', 'w', encoding='latin-1') as saida:
+        cabecalho = next(saida)
         for line in entrada:
             aeronave, companhia = line.split(',', maxsplit=2)[:2]
-            saida.write(f'{aeronave},{companhia}\n')
+            linhas_to_write.add(f'{aeronave},{companhia}\n')
+        
+        saida.write(cabecalho)
+        for line in sorted(linhas_to_write):
+            saida.write(line)
             
 
 def separar_aeroportos(path: str):
