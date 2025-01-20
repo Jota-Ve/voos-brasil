@@ -36,13 +36,13 @@ def read_csv(path: str, encoding: str, max_rows: int|None = None):
         return [line.split(',') for line in f]
 
 
-def separar_aeronaves(path: str):
+def separar_companhias(path: str):
     linhas_to_write = set()
-    with open(path, encoding='latin1') as entrada, open('BrFlights2/aeronaves.csv', 'w', encoding='latin-1') as saida:
-        cabecalho = next(entrada).split(',', maxsplit=2)[:2]
+    with open(path, encoding='latin1') as entrada, open('BrFlights2/DimCompanhias.csv', 'w', encoding='latin-1') as saida:
+        cabecalho = (next(entrada).split(',', maxsplit=2)[ColunasDataset.COMPANHIA_AEREA],)
         for line in entrada:
-            aeronave, companhia = line.split(',', maxsplit=2)[:2]
-            linhas_to_write.add(f'{aeronave},{companhia}')
+            companhia = line.split(',', maxsplit=2)[ColunasDataset.COMPANHIA_AEREA]
+            linhas_to_write.add(companhia)
         
         saida.write(f"id,{','.join(cabecalho)}\n")
         for _id, line in enumerate(sorted(linhas_to_write), start=1):
@@ -63,7 +63,6 @@ def separar_aeroportos(path: str):
         for _id, line in enumerate(sorted(linhas_saida), start=1):
             saida.write(f"{_id},{','.join(line)}\n")
 
-    
     
 def separar_voos(path: str):
     aeronaves = map_aeronave_to_id()
@@ -124,20 +123,17 @@ def map_aeroporto_to_id(path='./BrFlights2/aeroportos.csv') -> dict[tuple[float,
                 
 
 def separar_tabelas(dataset_path: str):
-    separar_aeronaves(dataset_path)
+    separar_companhias(dataset_path)
     separar_aeroportos(dataset_path)
     separar_voos(dataset_path)
-
 
 
 def main():
     DATASET_PATH = './BrFlights2/BrFlights2.csv'
     DATASET_ENCODING = 'latin-1'
 
-    separar_tabelas(DATASET_PATH)
-    
-    
-    
+    separar_companhias(DATASET_PATH)
+     
     
     
 if __name__ == '__main__':

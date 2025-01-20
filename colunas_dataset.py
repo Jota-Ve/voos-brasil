@@ -3,24 +3,29 @@ import enum
 
 
 class ColunasDataset(enum.IntEnum):
-    VOOS = 0
-    COMPANHIA_AEREA = 1
-    CODIGO_TIPO_LINHA = 2
-    PARTIDA_PREVISTA = 3
-    PARTIDA_REAL = 4
-    CHEGADA_PREVISTA = 5
-    CHEGADA_REAL = 6
-    SITUACAO_VOO = 7
-    CODIGO_JUSTIFICATIVA = 8
-    AEROPORTO_ORIGEM = 9
-    CIDADE_ORIGEM = 10
-    ESTADO_ORIGEM = 11
-    PAIS_ORIGEM = 12
-    AEROPORTO_DESTINO = 13
-    CIDADE_DESTINO = 14
-    ESTADO_DESTINO = 15
-    PAIS_DESTINO = 16
-    LONG_DEST = 17
-    LAT_DEST = 18
-    LONG_ORIG = 19
-    LAT_ORIG = 20
+    
+    @staticmethod
+    def _generate_next_value_(name, start, count, last_values): return count # count começa em 0
+    
+    
+    VOOS = enum.auto()
+    COMPANHIA_AEREA = enum.auto()
+    CODIGO_TIPO_LINHA = enum.auto()
+    PARTIDA_PREVISTA = enum.auto()
+    PARTIDA_REAL = enum.auto()
+    CHEGADA_PREVISTA = enum.auto()
+    CHEGADA_REAL = enum.auto()
+    SITUACAO_VOO = enum.auto()
+    CODIGO_JUSTIFICATIVA = enum.auto()
+    AEROPORTO_ORIGEM = enum.auto()
+    CIDADE_ORIGEM = enum.auto()
+    ESTADO_ORIGEM = enum.auto()
+    PAIS_ORIGEM = enum.auto()
+    AEROPORTO_DESTINO = enum.auto()
+    CIDADE_DESTINO = enum.auto()
+    ESTADO_DESTINO = enum.auto()
+    PAIS_DESTINO = enum.auto()
+    LONG_DEST = enum.auto()
+    LAT_DEST = enum.auto()
+    LONG_ORIG = enum.auto()
+    LAT_ORIG = enum.auto()
