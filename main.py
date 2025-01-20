@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 from colunas_dataset import ColunasDataset
 
 
-def spark_shit():
+def spark_things():
     PYTHON_PATH = r'.venv\Scripts\python.exe'
     # os.environ['PYSPARK_DRIVER_PYTHON'] = PYTHON_PATH
     # os.environ['%HADOOP_HOME%'] = r'C:\Users\JV\Downloads\spark-3.5.4-bin-hadoop3\spark-3.5.4-bin-hadoop3'
