@@ -11,7 +11,7 @@ PATH_FATO_VOOS = 'BrFlights2/FatoVoos.csv'
 
 
 def separar_voos(path: str):
-    NULL_CHAR = ''
+    NULL_CHAR = '\\N'
     aeroportos = dim_aeroportos.map_aeroporto_to_id()
     tempo = dim_tempo.map_tempo_to_id()
     companhia = dim_companhias.map_companhia_to_id()
@@ -53,8 +53,9 @@ def separar_voos(path: str):
 
             id_justificativa = justificativa.get(line_list[ColunasDataset.JUSTIFICATIVA], NULL_CHAR)
 
-            linhas_saida.add(','.join(map(str, [id_companhia, id_origem, id_destino, id_partida_prev, id_partida_real,
-                                                id_justificativa, atraso_minutos, cancelado])) + '\n')
+            linhas_saida.add((id_companhia, id_origem, id_destino, id_partida_prev,
+                              id_partida_real, id_justificativa, atraso_minutos, cancelado))
 
         print(f"Removeu {i-len(linhas_saida):_} linhas duplicadas, sobrando {len(linhas_saida):_} linhas.")
-        saida.writelines(linhas_saida)
+        for _id, line in enumerate(linhas_saida):
+            saida.writelines(f"{_id},{','.join(map(str, line))}" + "\n")
