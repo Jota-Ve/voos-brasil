@@ -1,8 +1,18 @@
 from datetime import datetime
+import time
 import numpy as np
 from pyspark.sql import SparkSession
 
 from colunas_dataset import ColunasDataset
+
+PATH_DATASET = './BrFlights2/BrFlights2.csv'
+ENCODING_DATASET = 'latin-1'
+
+PATH_DIM_COMPANHIAS = 'BrFlights2/DimCompanhias.csv'
+PATH_DIM_AEROPORTOS = 'BrFlights2/DimAeroportos.csv'
+PATH_DIM_JUSTIFICATIVAS = 'BrFlights2/DimJustificativa.csv'
+PATH_DIM_TEMPO = 'BrFlights2/DimTempo.csv'
+PATH_FATO_VOOS = 'BrFlights2/voos.csv'
 
 
 def spark_things():
@@ -39,7 +49,7 @@ def read_csv(path: str, encoding: str, max_rows: int|None = None):
 
 def separar_companhias(path: str):
     linhas_to_write = set()
-    with open(path, encoding='latin1') as entrada, open('BrFlights2/DimCompanhias.csv', 'w', encoding='latin-1') as saida:
+    with open(path, encoding='latin1') as entrada, open(PATH_DIM_COMPANHIAS, 'w', encoding='latin-1') as saida:
         cabecalho = (next(entrada).split(',', maxsplit=2)[ColunasDataset.COMPANHIA_AEREA],)
         for line in entrada:
             companhia = line.split(',', maxsplit=2)[ColunasDataset.COMPANHIA_AEREA]
@@ -52,7 +62,7 @@ def separar_companhias(path: str):
 
 def separar_aeroportos(path: str):
     linhas_saida: set[tuple[str, ...]] = set()
-    with open(path, encoding='latin1') as entrada, open('BrFlights2/DimAeroportos.csv', 'w', encoding='latin-1') as saida:
+    with open(path, encoding='latin1') as entrada, open(PATH_DIM_AEROPORTOS, 'w', encoding='latin-1') as saida:
         next(entrada) # pula cabeçalho
         for line in entrada:
             aero_orig, cidade_orig, estado_orig, pais_orig, aero_dest, cidade_dest, estado_dest, pais_dest, long_dest, lat_dest, long_orig, lat_orig = line.rsplit(',', maxsplit=12)[1:] # Vem con '\n' no final
@@ -67,7 +77,7 @@ def separar_aeroportos(path: str):
 
 def separar_justificativas(path: str):
     linhas_to_write = set()
-    with open(path, encoding='latin1') as entrada, open('BrFlights2/DimJustificativa.csv', 'w', encoding='latin-1') as saida:
+    with open(path, encoding='latin1') as entrada, open(PATH_DIM_JUSTIFICATIVAS, 'w', encoding='latin-1') as saida:
         cabecalho = (next(entrada).split(',', maxsplit=ColunasDataset.JUSTIFICATIVA +1)[ColunasDataset.JUSTIFICATIVA],)
         for line in entrada:
             justificativa = line.split(',', maxsplit=ColunasDataset.JUSTIFICATIVA +1)[ColunasDataset.JUSTIFICATIVA]
@@ -87,7 +97,7 @@ def separar_tempo(path: str):
 
     def _separar_hora_iso(tempo: str): return tempo[:2], tempo[3:5]
 
-    with open(path, encoding='latin1') as entrada, open('BrFlights2/DimTempo.csv', 'w', encoding='latin-1') as saida:
+    with open(path, encoding='latin1') as entrada, open(PATH_DIM_TEMPO, 'w', encoding='latin-1') as saida:
         next(entrada) # ignora cabecalho
         for line in entrada:
             line_list = line.strip().split(',')
@@ -107,7 +117,7 @@ def separar_voos(path: str):
     aeronaves = map_aeronave_to_id()
     aeroportos = map_aeroporto_to_id()
 
-    with open(path, encoding='latin1') as entrada, open('BrFlights2/voos.csv', 'w', encoding='latin-1') as saida:
+    with open(path, encoding='latin1') as entrada, open(PATH_FATO_VOOS, 'w', encoding='latin-1') as saida:
         next(entrada) # pula cabeçalho
 
         saida.write('idAeronave,partidaPrevista,idOrigem,idDestino,tipoLinha,'
@@ -155,25 +165,28 @@ def map_aeronave_to_id(path='./BrFlights2/aeronaves.csv') -> dict[str, int]:
         return {aeronave: int(_id) for _id, aeronave, copanhia in map(lambda l: l.strip().split(','), f)}
 
 
-def map_aeroporto_to_id(path='./BrFlights2/aeroportos.csv') -> dict[tuple[float, float], int]:
+def map_aeroporto_to_id(path=PATH_DIM_AEROPORTOS) -> dict[tuple[float, float], int]:
     with open(path, encoding='latin-1') as f:
         next(f)
         return {(float(latitude), float(longitude)): int(_id) for _id, *_ , latitude, longitude in map(lambda l: l.strip().split(','), f)}
 
 
 def separar_tabelas(dataset_path: str):
-    # separar_companhias(dataset_path)
-    # separar_aeroportos(dataset_path)
-    # separar_justificativas(dataset_path)
+    t0 = time.perf_counter()
+    separar_companhias(dataset_path)
+    print(f"Terminou separar_companhias() após {time.perf_counter() - t0:.0f} segundos")
+    separar_aeroportos(dataset_path)
+    print(f"Terminou separar_aeroportos() após {time.perf_counter() - t0:.0f} segundos")
+    separar_justificativas(dataset_path)
+    print(f"Terminou separar_justificativas() após {time.perf_counter() - t0:.0f} segundos")
     separar_tempo(dataset_path)
+    print(f"Terminou separar_tempo() após {time.perf_counter() - t0:.0f} segundos")
     # separar_voos(dataset_path)
+    # print(f"Terminou separar_voos() após {time.perf_counter() - t0:.0f} segundos")
 
 
 def main():
-    DATASET_PATH = './BrFlights2/BrFlights2.csv'
-    DATASET_ENCODING = 'latin-1'
-
-    separar_tabelas(DATASET_PATH)
+    separar_tabelas(PATH_DATASET)
 
 
 
