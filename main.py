@@ -114,14 +114,14 @@ def separar_tempo(path: str):
 
 
 def separar_voos(path: str):
-    aeronaves = map_aeronave_to_id()
+    NULL_CHAR = ''
     aeroportos = map_aeroporto_to_id()
+    tempo = map_tempo_to_id()
 
     with open(path, encoding='latin1') as entrada, open(PATH_FATO_VOOS, 'w', encoding='latin-1') as saida:
         next(entrada) # pula cabeçalho
 
-        saida.write('idAeronave,partidaPrevista,idOrigem,idDestino,tipoLinha,'
-                    'partidaReal,chegadaPrevista,chegadaReal,situacao,justificativa\n')
+        saida.write('id,idCompanhia,idOrigem,idDestino,idPartidaPrevista,idPartidaReal,idJustificativa,atrasoMinutos,cancelado\n')
         linhas_saida = set()
         i = 0
         for i, line in enumerate(entrada):
@@ -129,40 +129,30 @@ def separar_voos(path: str):
                 print(f"Lendo linha {i:_}...")
 
             line_list = line.strip().split(',')
-            id_aeronave = str(aeronaves[line_list[ColunasDataset.VOOS]])
-            partida_prev = line_list[ColunasDataset.PARTIDA_PREVISTA]
-            if (partida_prev := line_list[ColunasDataset.PARTIDA_REAL].strip('Z')) == 'NA':
-                partida_prev = ''
+            partida_prev = str(tempo.get(line_list[ColunasDataset.PARTIDA_PREVISTA], NULL_CHAR))
+            partida_real = str(tempo.get(line_list[ColunasDataset.PARTIDA_REAL],     NULL_CHAR))
 
             id_origem = str(aeroportos[float(line_list[ColunasDataset.LAT_ORIG]),
-                                   float(line_list[ColunasDataset.LONG_ORIG])])
+                                       float(line_list[ColunasDataset.LONG_ORIG])])
 
             id_destino = str(aeroportos[float(line_list[ColunasDataset.LAT_DEST]),
-                                    float(line_list[ColunasDataset.LONG_DEST])])
+                                        float(line_list[ColunasDataset.LONG_DEST])])
 
-            tipo_linha = line_list[ColunasDataset.CODIGO_TIPO_LINHA]
+        #     situacao = line_list[ColunasDataset.SITUACAO_VOO]
+        #     justificativa = line_list[ColunasDataset.JUSTIFICATIVA]
 
-            if (partida_real := line_list[ColunasDataset.PARTIDA_REAL].strip('Z')) == 'NA':
-                partida_real = ''
-            if (chegada_prev := line_list[ColunasDataset.CHEGADA_PREVISTA].strip('Z')) == 'NA':
-                chegada_prev = ''
-            if (chegada_real := line_list[ColunasDataset.CHEGADA_REAL].strip('Z')) == 'NA':
-                chegada_real = ''
+        #     linhas_saida.add(','.join([partida_prev, id_origem, id_destino,
+        #                           partida_real, situacao, justificativa]) + '\n')
 
-            situacao = line_list[ColunasDataset.SITUACAO_VOO]
-            justificativa = line_list[ColunasDataset.JUSTIFICATIVA]
-
-            linhas_saida.add(','.join([id_aeronave, partida_prev, id_origem, id_destino, tipo_linha,
-                                  partida_real, chegada_prev, chegada_real, situacao, justificativa]) + '\n')
-
-        print(f"Remove {i-len(linhas_saida):_} linhas duplicadas, sobrando {len(linhas_saida):_} linhas.")
-        saida.writelines(linhas_saida)
+        # print(f"Remove {i-len(linhas_saida):_} linhas duplicadas, sobrando {len(linhas_saida):_} linhas.")
+        # saida.writelines(linhas_saida)
 
 
-def map_aeronave_to_id(path='./BrFlights2/aeronaves.csv') -> dict[str, int]:
+def map_tempo_to_id(path=PATH_DIM_TEMPO) -> dict[str, int]:
     with open(path, encoding='latin-1') as f:
-        next(f)
-        return {aeronave: int(_id) for _id, aeronave, copanhia in map(lambda l: l.strip().split(','), f)}
+        next(f) # Pula cabeçalho
+        return {f'{ano}-{mes}-{dia}T{hr}:{_min}:00Z': int(_id)
+                for _id, ano, mes, dia, hr, _min in map(lambda l: l.strip().split(','), f)}
 
 
 def map_aeroporto_to_id(path=PATH_DIM_AEROPORTOS) -> dict[tuple[float, float], int]:
@@ -173,16 +163,16 @@ def map_aeroporto_to_id(path=PATH_DIM_AEROPORTOS) -> dict[tuple[float, float], i
 
 def separar_tabelas(dataset_path: str):
     t0 = time.perf_counter()
-    separar_companhias(dataset_path)
-    print(f"Terminou separar_companhias() após {time.perf_counter() - t0:.0f} segundos")
-    separar_aeroportos(dataset_path)
-    print(f"Terminou separar_aeroportos() após {time.perf_counter() - t0:.0f} segundos")
-    separar_justificativas(dataset_path)
-    print(f"Terminou separar_justificativas() após {time.perf_counter() - t0:.0f} segundos")
-    separar_tempo(dataset_path)
-    print(f"Terminou separar_tempo() após {time.perf_counter() - t0:.0f} segundos")
-    # separar_voos(dataset_path)
-    # print(f"Terminou separar_voos() após {time.perf_counter() - t0:.0f} segundos")
+    # separar_companhias(dataset_path)
+    # print(f"Terminou separar_companhias() após {time.perf_counter() - t0:.0f} segundos")
+    # separar_aeroportos(dataset_path)
+    # print(f"Terminou separar_aeroportos() após {time.perf_counter() - t0:.0f} segundos")
+    # separar_justificativas(dataset_path)
+    # print(f"Terminou separar_justificativas() após {time.perf_counter() - t0:.0f} segundos")
+    # separar_tempo(dataset_path)
+    # print(f"Terminou separar_tempo() após {time.perf_counter() - t0:.0f} segundos")
+    separar_voos(dataset_path)
+    print(f"Terminou separar_voos() após {time.perf_counter() - t0:.0f} segundos")
 
 
 def main():
