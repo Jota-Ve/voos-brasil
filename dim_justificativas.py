@@ -1,6 +1,6 @@
 from colunas_dataset import ColunasDataset
 
-PATH_DIM_JUSTIFICATIVAS = 'BrFlights2/DimJustificativa.csv'
+PATH_DIM_JUSTIFICATIVAS = 'BrFlights2/DimJustificativas.csv'
 
 def separar_justificativas(path: str):
     linhas_to_write = set()

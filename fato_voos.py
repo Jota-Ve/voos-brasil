@@ -7,7 +7,7 @@ import dim_justificativas
 import dim_tempo
 from colunas_dataset import ColunasDataset
 
-PATH_FATO_VOOS = 'BrFlights2/voos.csv'
+PATH_FATO_VOOS = 'BrFlights2/FatoVoos.csv'
 
 
 def separar_voos(path: str):
