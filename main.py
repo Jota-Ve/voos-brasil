@@ -64,6 +64,19 @@ def separar_aeroportos(path: str):
             saida.write(f"{_id},{','.join(line)}\n")
 
 
+def separar_justificativas(path: str):
+    linhas_to_write = set()
+    with open(path, encoding='latin1') as entrada, open('BrFlights2/DimJustificativa.csv', 'w', encoding='latin-1') as saida:
+        cabecalho = (next(entrada).split(',', maxsplit=ColunasDataset.JUSTIFICATIVA +1)[ColunasDataset.JUSTIFICATIVA],)
+        for line in entrada:
+            justificativa = line.split(',', maxsplit=ColunasDataset.JUSTIFICATIVA +1)[ColunasDataset.JUSTIFICATIVA]
+            linhas_to_write.add(justificativa)
+
+        saida.write(f"id,{','.join(cabecalho)}\n")
+        for _id, line in enumerate(sorted(linhas_to_write), start=1):
+            saida.write(f"{_id},{line}\n")
+
+
 def separar_voos(path: str):
     aeronaves = map_aeronave_to_id()
     aeroportos = map_aeroporto_to_id()
@@ -101,7 +114,7 @@ def separar_voos(path: str):
                 chegada_real = ''
 
             situacao = line_list[ColunasDataset.SITUACAO_VOO]
-            justificativa = line_list[ColunasDataset.CODIGO_JUSTIFICATIVA]
+            justificativa = line_list[ColunasDataset.JUSTIFICATIVA]
 
             linhas_saida.add(','.join([id_aeronave, partida_prev, id_origem, id_destino, tipo_linha,
                                   partida_real, chegada_prev, chegada_real, situacao, justificativa]) + '\n')
@@ -124,7 +137,8 @@ def map_aeroporto_to_id(path='./BrFlights2/aeroportos.csv') -> dict[tuple[float,
 
 def separar_tabelas(dataset_path: str):
     # separar_companhias(dataset_path)
-    separar_aeroportos(dataset_path)
+    # separar_aeroportos(dataset_path)
+    separar_justificativas(dataset_path)
     # separar_voos(dataset_path)
 
 

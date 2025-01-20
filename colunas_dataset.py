@@ -3,11 +3,11 @@ import enum
 
 
 class ColunasDataset(enum.IntEnum):
-    
+
     @staticmethod
     def _generate_next_value_(name, start, count, last_values): return count # count começa em 0
-    
-    
+
+
     VOOS = enum.auto()
     COMPANHIA_AEREA = enum.auto()
     CODIGO_TIPO_LINHA = enum.auto()
@@ -16,7 +16,7 @@ class ColunasDataset(enum.IntEnum):
     CHEGADA_PREVISTA = enum.auto()
     CHEGADA_REAL = enum.auto()
     SITUACAO_VOO = enum.auto()
-    CODIGO_JUSTIFICATIVA = enum.auto()
+    JUSTIFICATIVA = enum.auto()
     AEROPORTO_ORIGEM = enum.auto()
     CIDADE_ORIGEM = enum.auto()
     ESTADO_ORIGEM = enum.auto()
